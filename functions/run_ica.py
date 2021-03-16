@@ -1,9 +1,6 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import FastICA
 from scipy.stats import pearsonr, spearmanr
-from itertools import combinations_with_replacement
 
 
 def run_ica(norm_data, iterations=3, n_comp=300, threshold=.9):
