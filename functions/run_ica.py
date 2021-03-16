@@ -6,16 +6,19 @@ from scipy.stats import pearsonr, spearmanr
 from itertools import combinations_with_replacement
 
 
-def run_ica(norm_data, iter=3, n_comp=300):
+def run_ica(norm_data, iterations=3, n_comp=300):
     # Initialize the M and A with one run of ICA
     ica_transformer = FastICA(n_components=n_comp).fit(norm_data.transpose())
     M = pd.DataFrame(ica_transformer.transform(norm_data.transpose()))
-    A = pd.DataFrame(ica_transformer)
-    for i in range(0, iter - 1):
+    A = pd.DataFrame(ica_transformer.mixing_)
+    for i in range(0, iterations):
+        print("Running iteration: " + str(i))
         ica_transformer = FastICA(n_components=n_comp).fit(
             norm_data.transpose())
         temp_M = pd.DataFrame(ica_transformer.transform(norm_data.transpose()))
         temp_A = pd.DataFrame(ica_transformer.mixing_)
+        M, A = _cluster_comp(M, temp_M, A, temp_A)
+    return M, A
 
 
 def _cluster_comp(final_M, new_M, final_A, new_A):
@@ -24,13 +27,14 @@ def _cluster_comp(final_M, new_M, final_A, new_A):
     for i in range(0, len(final_M.columns)):
         for j in range(0, len(new_M.columns)):
             metrics.loc[i][j] = abs(pearsonr(final_M[i], new_M[j])[0])
-            metrics.loc[j][i] = abs(pearsonr(final_M[i], new_M[j])[0])
+            #metrics.loc[j][i] = abs(pearsonr(final_M[i], new_M[j])[0])
     metrics = metrics.fillna(0)
     M = pd.DataFrame(index=final_M.index)
     A = pd.DataFrame(index=final_A.index)
     for i, item in metrics.iteritems():
         for j in item.index:
-            if item[j] == max(item) and max(item) > .9:
+            if item[j] == max(item) and max(item) > .5:
+                print(max(item))
                 M1_abs_max = float(final_M[i].loc[final_M[i].abs().nlargest(
                     1).index])
                 M2_abs_max = float(new_M[j].loc[new_M[j].abs().nlargest(
@@ -57,4 +61,6 @@ def _cluster_comp(final_M, new_M, final_A, new_A):
                     A2_corrected = new_A[i]
                 M[str(i) + "_" + str(j)] = (M1_corrected + M2_corrected) / 2
                 A[str(i) + "_" + str(j)] = (A1_corrected + A2_corrected) / 2
+    M.columns= range(len(M.columns))
+    A.columns= range(len(A.columns))
     return M, A
