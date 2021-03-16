@@ -1,2 +1,5 @@
 data/filtered_data.csv
 functions/__pycache__/
+data/A.csv
+data/M.csv
+.idea/
