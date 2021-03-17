@@ -43,13 +43,13 @@ def _cluster_comp(final_M, new_M, final_A, new_A, threshold):
                 else:
                     M1_corrected = final_M[j]
                 if M2_abs_max < 0:
-                    M2_corrected = -new_M[j]
+                    M2_corrected = -new_M[i]
                 else:
-                    M2_corrected = new_M[j]
+                    M2_corrected = new_M[i]
                 if A1_abs_max < 0:
-                    A1_corrected = -final_A[i]
+                    A1_corrected = -final_A[j]
                 else:
-                    A1_corrected = final_A[i]
+                    A1_corrected = final_A[j]
                 if A2_abs_max < 0:
                     A2_corrected = -new_A[i]
                 else:
@@ -58,5 +58,5 @@ def _cluster_comp(final_M, new_M, final_A, new_A, threshold):
                 A[str(i) + "_" + str(j)] = (A1_corrected + A2_corrected) / 2
     M.columns = range(len(M.columns))
     A.columns = range(len(A.columns))
-    print("Number of Components: "+ M.shape[0])
+    print("Number of Components: " + str(M.shape[1]))
     return M, A
